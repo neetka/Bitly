@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitly — URL Shortener</title>
+    <meta name="description" content="Shorten long URLs instantly with Bitly. Track clicks, generate QR codes, and manage your links.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔗</text></svg>">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-grid"></div>
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <div class="bg-glow bg-glow-3"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-inner">
+            <a href="/" class="logo" id="logo">
+                <div class="logo-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                    </svg>
+                </div>
+                <span class="logo-text">Bitly</span>
+                <span class="logo-badge">v1.0</span>
+            </a>
+            <nav class="nav-links">
+                <a href="/swagger-ui.html" target="_blank" class="nav-link" id="nav-api-docs">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    API Docs
+                </a>
+                <a href="https://github.com" target="_blank" class="nav-link" id="nav-github">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+                    GitHub
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+
+            <!-- Hero Section -->
+            <section class="hero" id="hero-section">
+                <div class="hero-badge">
+                    <span class="pulse-dot"></span>
+                    Powered by Spring Boot + PostgreSQL
+                </div>
+                <h1 class="hero-title">
+                    Shorten Your Links,<br>
+                    <span class="gradient-text">Amplify Your Reach</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Create short, memorable links in seconds. Track every click with real-time analytics and generate QR codes instantly.
+                </p>
+            </section>
+
+            <!-- URL Shortener Form -->
+            <section class="shortener-card" id="shortener-section">
+                <form id="shorten-form" class="shortener-form">
+                    <div class="input-group">
+                        <div class="input-wrapper">
+                            <svg class="input-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                            <input 
+                                type="url" 
+                                id="url-input" 
+                                placeholder="Paste your long URL here..." 
+                                required 
+                                autocomplete="off"
+                            >
+                        </div>
+                        <button type="submit" id="shorten-btn" class="btn btn-primary">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            <span>Shorten</span>
+                        </button>
+                    </div>
+
+                    <!-- Advanced Options -->
+                    <div class="advanced-toggle" id="advanced-toggle">
+                        <button type="button" class="toggle-btn" id="toggle-advanced-btn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                            Advanced Options
+                        </button>
+                    </div>
+                    <div class="advanced-options" id="advanced-options">
+                        <div class="option-row">
+                            <div class="option-field">
+                                <label for="custom-alias">Custom Alias</label>
+                                <input type="text" id="custom-alias" placeholder="e.g. my-brand" maxlength="10">
+                            </div>
+                            <div class="option-field">
+                                <label for="expires-at">Expiration Date</label>
+                                <input type="datetime-local" id="expires-at">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Result -->
+                <div class="result-card hidden" id="result-card">
+                    <div class="result-header">
+                        <div class="result-success-icon">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        </div>
+                        <span>Link created successfully!</span>
+                    </div>
+                    <div class="result-body">
+                        <div class="result-url-row">
+                            <a href="#" id="result-short-url" class="result-url" target="_blank"></a>
+                            <button type="button" class="btn btn-icon" id="copy-btn" title="Copy to clipboard">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            </button>
+                            <button type="button" class="btn btn-icon" id="qr-btn" title="Show QR Code">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="8" height="8" rx="1"/><rect x="14" y="2" width="8" height="8" rx="1"/><rect x="2" y="14" width="8" height="8" rx="1"/><rect x="14" y="14" width="4" height="4"/><rect x="20" y="20" width="2" height="2"/><rect x="20" y="14" width="2" height="2"/><rect x="14" y="20" width="2" height="2"/></svg>
+                            </button>
+                        </div>
+                        <p class="result-original" id="result-original-url"></p>
+                    </div>
+                </div>
+
+                <!-- Error Message -->
+                <div class="error-card hidden" id="error-card">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                    <span id="error-message"></span>
+                </div>
+            </section>
+
+            <!-- Stats Section -->
+            <section class="stats-section" id="stats-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
+                        Your Links
+                    </h2>
+                    <button class="btn btn-ghost" id="refresh-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                        Refresh
+                    </button>
+                </div>
+                <div class="links-grid" id="links-grid">
+                    <!-- Links populated by JS -->
+                </div>
+                <div class="empty-state hidden" id="empty-state">
+                    <div class="empty-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    </div>
+                    <h3>No links yet</h3>
+                    <p>Shorten your first URL to get started!</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- QR Code Modal -->
+    <div class="modal-overlay hidden" id="qr-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>QR Code</h3>
+                <button type="button" class="btn btn-icon modal-close" id="qr-modal-close">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="qr-container" id="qr-container">
+                    <img id="qr-image" alt="QR Code">
+                </div>
+                <p class="qr-url" id="qr-url"></p>
+                <a class="btn btn-primary btn-sm" id="qr-download" download="qr-code.png">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Download PNG
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast hidden" id="toast">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <span id="toast-message">Copied to clipboard!</span>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>Built with <span class="heart">♥</span> using Spring Boot, PostgreSQL & Docker</p>
+        </div>
+    </footer>
+
+    <script src="/app.js"></script>
+</body>
+</html>

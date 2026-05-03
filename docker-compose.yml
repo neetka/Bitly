@@ -1,0 +1,47 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: bitly-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: bitly
+      POSTGRES_USER: bitly
+      POSTGRES_PASSWORD: bitly_secret
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U bitly -d bitly" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bitly-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bitly-app
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres:5432/bitly
+      DATABASE_USERNAME: bitly
+      DATABASE_PASSWORD: bitly_secret
+      APP_BASE_URL: http://localhost:8080
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - bitly-network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  bitly-network:
+    driver: bridge
