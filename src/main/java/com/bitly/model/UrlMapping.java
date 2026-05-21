@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * JPA entity representing a URL mapping.
@@ -15,7 +16,8 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "url_mappings", indexes = {
         @Index(name = "idx_short_code", columnList = "shortCode", unique = true),
-        @Index(name = "idx_expires_at", columnList = "expiresAt")
+        @Index(name = "idx_expires_at", columnList = "expiresAt"),
+        @Index(name = "idx_user_id", columnList = "user_id")
 })
 @Getter
 @Setter
@@ -37,6 +39,17 @@ public class UrlMapping {
     @Column(nullable = false)
     @Builder.Default
     private Long clickCount = 0L;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @Column(length = 100)
+    private String passwordHash;
+
+    @OneToMany(mappedBy = "urlMapping", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<ClickEvent> clickEvents = new java.util.ArrayList<>();
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)

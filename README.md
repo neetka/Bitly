@@ -150,7 +150,7 @@ Content-Type: application/json
   "originalUrl": "https://www.example.com/very/long/path/to/resource",
   "shortUrl": "http://localhost:8080/my-link",
   "clickCount": 0,
-  "createdAt": "2026-05-03T10:30:00",
+  "createdAt": "2026-05-12T15:30:00",
   "expiresAt": "2026-12-31T23:59:59"
 }
 ```

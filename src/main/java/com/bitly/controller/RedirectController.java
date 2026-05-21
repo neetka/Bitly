@@ -2,6 +2,7 @@ package com.bitly.controller;
 
 import com.bitly.service.UrlService;
 import io.swagger.v3.oas.annotations.Hidden;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -13,8 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * Controller responsible for redirecting short URLs to their original destinations.
  * This is the public-facing endpoint that end users interact with.
- * Uses regex to only match valid Base62 short codes (1-10 alphanumeric chars),
- * preventing conflicts with static resources like index.html, styles.css, etc.
+ * Detects password protection requirements and redirects to a password prompt page.
  */
 @RestController
 @RequiredArgsConstructor
@@ -25,18 +25,41 @@ public class RedirectController {
 
     /**
      * Redirects the user to the original URL associated with the short code.
-     * Only matches paths that look like Base62 codes (alphanumeric, 1-10 chars).
+     * Extracts browser details (referrer, user-agent, client IP) to record rich analytics click events.
+     * Redirects to the password prompt if password-protected.
      */
     @GetMapping("/{shortCode:[a-zA-Z0-9\\-]{1,10}}")
-    public ResponseEntity<Void> redirect(@PathVariable String shortCode) {
-        String originalUrl = urlService.resolveUrl(shortCode);
+    public ResponseEntity<Void> redirect(
+            @PathVariable String shortCode,
+            HttpServletRequest servletRequest) {
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.LOCATION, originalUrl);
-        headers.add(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate");
+        String referrer = servletRequest.getHeader(HttpHeaders.REFERER);
+        String userAgent = servletRequest.getHeader(HttpHeaders.USER_AGENT);
+        String ipAddress = servletRequest.getRemoteAddr();
 
-        return ResponseEntity.status(HttpStatus.FOUND)
-                .headers(headers)
-                .build();
+        // Handle proxy forwarding setups to get real client IP
+        String xForwardedFor = servletRequest.getHeader("X-Forwarded-For");
+        if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
+            ipAddress = xForwardedFor.split(",")[0].trim();
+        }
+
+        try {
+            String originalUrl = urlService.resolveUrl(shortCode, referrer, userAgent, ipAddress);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.LOCATION, originalUrl);
+            headers.add(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate");
+
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .headers(headers)
+                    .build();
+        } catch (com.bitly.exception.PasswordRequiredException ex) {
+            // Redirect browser to password verification page
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.LOCATION, "/password.html?code=" + shortCode);
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .headers(headers)
+                    .build();
+        }
     }
 }

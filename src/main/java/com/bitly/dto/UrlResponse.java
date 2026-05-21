@@ -45,4 +45,7 @@ public class UrlResponse {
 
     @Schema(description = "Expiration timestamp for the URL, null if never expires")
     private LocalDateTime expiresAt;
+
+    @Schema(description = "Whether access to the shortened URL is protected by a password", example = "true")
+    private Boolean passwordProtected;
 }

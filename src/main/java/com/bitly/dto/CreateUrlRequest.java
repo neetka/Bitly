@@ -40,4 +40,10 @@ public class CreateUrlRequest {
             example = "my-link",
             nullable = true)
     private String customAlias;
+
+    @Size(max = 50, message = "Password must not exceed 50 characters")
+    @Schema(description = "Optional password required to access this shortened URL",
+            example = "mySecretPassword123",
+            nullable = true)
+    private String password;
 }

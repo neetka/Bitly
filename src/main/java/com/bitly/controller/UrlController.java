@@ -2,7 +2,9 @@ package com.bitly.controller;
 
 import com.bitly.dto.CreateUrlRequest;
 import com.bitly.dto.ErrorResponse;
+import com.bitly.dto.ResolvePasswordRequest;
 import com.bitly.dto.UrlResponse;
+import com.bitly.model.User;
 import com.bitly.service.QrCodeService;
 import com.bitly.service.UrlService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,18 +14,20 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 /**
  * REST controller for URL shortening operations.
- * Provides endpoints for creating, retrieving, and managing shortened URLs.
+ * Provides endpoints for creating, retrieving, searching, and managing user shortened URLs.
  */
 @RestController
 @RequestMapping("/api/urls")
@@ -36,7 +40,7 @@ public class UrlController {
 
     @PostMapping
     @Operation(summary = "Create a shortened URL",
-            description = "Generates a short code for the provided URL. Optionally set an expiration date or custom alias.")
+            description = "Generates a short code for the provided URL. Optionally set an expiration date, password, or custom alias.")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Short URL created successfully",
                     content = @Content(schema = @Schema(implementation = UrlResponse.class))),
@@ -46,8 +50,9 @@ public class UrlController {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public ResponseEntity<UrlResponse> createShortUrl(
-            @Valid @RequestBody CreateUrlRequest request) {
-        UrlResponse response = urlService.createShortUrl(request);
+            @Valid @RequestBody CreateUrlRequest request,
+            @AuthenticationPrincipal User user) {
+        UrlResponse response = urlService.createShortUrl(request, user);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -61,15 +66,55 @@ public class UrlController {
     })
     public ResponseEntity<UrlResponse> getUrlStats(
             @Parameter(description = "The short code to look up", example = "aB3dE7f")
-            @PathVariable String shortCode) {
-        return ResponseEntity.ok(urlService.getUrlStats(shortCode));
+            @PathVariable String shortCode,
+            @AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(urlService.getUrlStats(shortCode, user));
     }
 
     @GetMapping
-    @Operation(summary = "List all shortened URLs",
-            description = "Returns all URL mappings sorted by creation date (newest first)")
-    public ResponseEntity<List<UrlResponse>> getAllUrls() {
-        return ResponseEntity.ok(urlService.getAllUrls());
+    @Operation(summary = "List all shortened URLs for the user",
+            description = "Returns all URL mappings owned by the logged-in user, sorted by creation date (newest first)")
+    public ResponseEntity<List<UrlResponse>> getAllUrls(@AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(urlService.getAllUrls(user));
+    }
+
+    @GetMapping("/search")
+    @Operation(summary = "Search and filter user's shortened URLs",
+            description = "Search URLs by original URL or short code, and filter/sort by date or click count")
+    public ResponseEntity<List<UrlResponse>> searchUrls(
+            @RequestParam(required = false) String q,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir,
+            @AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(urlService.searchUrls(user, q, sortBy, sortDir));
+    }
+
+    @PostMapping("/{shortCode}/resolve")
+    @Operation(summary = "Resolve a password-protected short URL",
+            description = "Verifies password and records click analytics, returning the original URL for client redirect")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Password verified, original URL returned"),
+            @ApiResponse(responseCode = "401", description = "Invalid or missing password")
+    })
+    public ResponseEntity<UrlResponse> resolvePasswordProtectedUrl(
+            @PathVariable String shortCode,
+            @RequestBody ResolvePasswordRequest request,
+            HttpServletRequest servletRequest) {
+
+        String referrer = servletRequest.getHeader(org.springframework.http.HttpHeaders.REFERER);
+        String userAgent = servletRequest.getHeader(org.springframework.http.HttpHeaders.USER_AGENT);
+        String ipAddress = servletRequest.getRemoteAddr();
+
+        String xForwardedFor = servletRequest.getHeader("X-Forwarded-For");
+        if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
+            ipAddress = xForwardedFor.split(",")[0].trim();
+        }
+
+        String originalUrl = urlService.resolveUrlWithPassword(shortCode, request.getPassword(), referrer, userAgent, ipAddress);
+
+        return ResponseEntity.ok(UrlResponse.builder()
+                .originalUrl(originalUrl)
+                .build());
     }
 
     @DeleteMapping("/{shortCode}")
@@ -81,8 +126,9 @@ public class UrlController {
     })
     public ResponseEntity<Void> deleteUrl(
             @Parameter(description = "The short code to delete")
-            @PathVariable String shortCode) {
-        urlService.deleteUrl(shortCode);
+            @PathVariable String shortCode,
+            @AuthenticationPrincipal User user) {
+        urlService.deleteUrl(shortCode, user);
         return ResponseEntity.noContent().build();
     }
 
@@ -101,10 +147,11 @@ public class UrlController {
             @Parameter(description = "QR code width in pixels (default 300)")
             @RequestParam(defaultValue = "300") int width,
             @Parameter(description = "QR code height in pixels (default 300)")
-            @RequestParam(defaultValue = "300") int height) throws Exception {
+            @RequestParam(defaultValue = "300") int height,
+            @AuthenticationPrincipal User user) throws Exception {
 
-        // Verify the short code exists
-        UrlResponse urlStats = urlService.getUrlStats(shortCode);
+        // Verify the short code exists (anyone can fetch a QR code if they know the short code)
+        UrlResponse urlStats = urlService.getUrlStats(shortCode, user);
         byte[] qrCode = qrCodeService.generateQrCode(urlStats.getShortUrl(), width, height);
 
         return ResponseEntity.ok()
