@@ -59,6 +59,8 @@ const authSwitchBtn = document.getElementById('auth-switch-btn');
 const authSwitchText = document.getElementById('auth-switch-text');
 
 const linkPassword = document.getElementById('link-password');
+const enablePasswordCheckbox = document.getElementById('enable-password-checkbox');
+const passwordInputContainer = document.getElementById('password-input-container');
 const searchInput = document.getElementById('search-input');
 const sortBySelect = document.getElementById('sort-by-select');
 const sortDirSelect = document.getElementById('sort-dir-select');
@@ -233,11 +235,16 @@ form.addEventListener('submit', async (e) => {
     const body = { url };
     const alias = customAliasInput.value.trim();
     const expires = expiresAtInput.value;
-    const password = linkPassword.value;
     
     if (alias) body.customAlias = alias;
     if (expires) body.expiresAt = expires;
-    if (password) body.password = password;
+    
+    if (enablePasswordCheckbox && enablePasswordCheckbox.checked) {
+        const password = linkPassword.value.trim();
+        if (password) {
+            body.password = password;
+        }
+    }
 
     shortenBtn.disabled = true;
     shortenBtn.innerHTML = '<div class="spinner"></div><span>Shortening...</span>';
@@ -265,6 +272,12 @@ form.addEventListener('submit', async (e) => {
         customAliasInput.value = '';
         expiresAtInput.value = '';
         linkPassword.value = '';
+        if (enablePasswordCheckbox) {
+            enablePasswordCheckbox.checked = false;
+        }
+        if (passwordInputContainer) {
+            passwordInputContainer.classList.add('hidden');
+        }
         loadLinks();
     } catch (err) {
         showError('Network error. Is the server running?');
@@ -279,6 +292,19 @@ toggleAdvancedBtn.addEventListener('click', () => {
     advancedOptions.classList.toggle('show');
     toggleAdvancedBtn.classList.toggle('active');
 });
+
+// ===== Enable/Disable Password Fields =====
+if (enablePasswordCheckbox && passwordInputContainer) {
+    enablePasswordCheckbox.addEventListener('change', () => {
+        if (enablePasswordCheckbox.checked) {
+            passwordInputContainer.classList.remove('hidden');
+            linkPassword.focus();
+        } else {
+            passwordInputContainer.classList.add('hidden');
+            linkPassword.value = '';
+        }
+    });
+}
 
 // ===== Show/Hide Messages =====
 function showResult(data) {

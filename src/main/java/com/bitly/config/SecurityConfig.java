@@ -40,7 +40,7 @@ public class SecurityConfig {
                         // Password resolution is public so unauthenticated users can unlock links
                         .requestMatchers("/api/urls/*/resolve").permitAll()
                         // Main URL redirection is public
-                        .requestMatchers("/{shortCode:[a-zA-Z0-9\\-]{1,10}}").permitAll()
+                        .requestMatchers("/{shortCode:[a-zA-Z0-9\\-]{1,20}}").permitAll()
                         // All other API URLs require authentication
                         .anyRequest().authenticated()
                 )

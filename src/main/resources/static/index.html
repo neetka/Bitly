@@ -102,15 +102,27 @@
                         <div class="option-row">
                             <div class="option-field">
                                 <label for="custom-alias">Custom Alias</label>
-                                <input type="text" id="custom-alias" placeholder="e.g. my-brand" maxlength="10">
+                                <input type="text" id="custom-alias" placeholder="e.g. my-brand" maxlength="20">
                             </div>
                             <div class="option-field">
                                 <label for="expires-at">Expiration Date</label>
                                 <input type="datetime-local" id="expires-at">
                             </div>
-                            <div class="option-field">
+                        </div>
+                        <div class="password-toggle-section">
+                            <div class="toggle-card">
+                                <div class="toggle-info">
+                                    <span class="toggle-title">Password Protection</span>
+                                    <span class="toggle-description">Require a password to access this shortened link</span>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="enable-password-checkbox">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="option-field hidden" id="password-input-container">
                                 <label for="link-password">Access Password</label>
-                                <input type="password" id="link-password" placeholder="e.g. secure123" maxlength="50">
+                                <input type="password" id="link-password" placeholder="e.g. secure123" maxlength="20">
                             </div>
                         </div>
                     </div>

@@ -35,13 +35,13 @@ public class CreateUrlRequest {
             nullable = true)
     private LocalDateTime expiresAt;
 
-    @Size(max = 10, message = "Custom alias must not exceed 10 characters")
+    @Size(max = 20, message = "Custom alias must not exceed 20 characters")
     @Schema(description = "Optional custom alias for the short code",
             example = "my-link",
             nullable = true)
     private String customAlias;
 
-    @Size(max = 50, message = "Password must not exceed 50 characters")
+    @Size(max = 20, message = "Password must not exceed 20 characters")
     @Schema(description = "Optional password required to access this shortened URL",
             example = "mySecretPassword123",
             nullable = true)

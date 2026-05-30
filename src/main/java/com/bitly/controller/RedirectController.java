@@ -28,7 +28,7 @@ public class RedirectController {
      * Extracts browser details (referrer, user-agent, client IP) to record rich analytics click events.
      * Redirects to the password prompt if password-protected.
      */
-    @GetMapping("/{shortCode:[a-zA-Z0-9\\-]{1,10}}")
+    @GetMapping("/{shortCode:[a-zA-Z0-9\\-]{1,20}}")
     public ResponseEntity<Void> redirect(
             @PathVariable String shortCode,
             HttpServletRequest servletRequest) {
